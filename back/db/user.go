@@ -4,7 +4,7 @@ import "drive-connect/db/model"
 
 func (d *DB) GetUserById(id string) (*model.User, error) {
 	var user *model.User
-	if err := d.Conn.Where("user_uuid = ?", id).First(&user).Error; err != nil {
+	if err := d.Conn.Where("id = ?", id).First(&user).Error; err != nil {
 		return nil, err
 	}
 	return user, nil
@@ -18,14 +18,14 @@ func (d *DB) CreateUser(user *model.User) error {
 }
 
 func (d *DB) UpdateUser(id string, user *model.User) error {
-	if err := d.Conn.Where("user_uuid = ?", id).Updates(user).Error; err != nil {
+	if err := d.Conn.Where("id = ?", id).Updates(user).Error; err != nil {
 		return err
 	}
 	return nil
 }
 
 func (d *DB) DeleteUser(id string) error {
-	if err := d.Conn.Where("user_uuid = ?", id).Delete(&model.User{}).Error; err != nil {
+	if err := d.Conn.Where("id = ?", id).Delete(&model.User{}).Error; err != nil {
 		return err
 	}
 	return nil

@@ -16,6 +16,7 @@ services:
       - DB_HOST=db
       - DB_SSLMODE=disable
       - DB_TIMEZONE=Asia/Tokyo
+      - JWT_SECRET=secret
 
     depends_on:
       - db

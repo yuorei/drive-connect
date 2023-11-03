@@ -142,3 +142,37 @@ func (s *boardService) DeleteBoard(ctx context.Context, request *grpc_board.ID) 
 
 	return &emptypb.Empty{}, nil
 }
+
+func (s *boardService) GetBoardList(ctx context.Context, _ *emptypb.Empty) (*grpc_board.BoardList, error) {
+	boards, err := s.db.GetBoardList()
+	if err != nil {
+		return nil, err
+	}
+
+	var boardList []*grpc_board.Board
+
+	for _, board := range boards {
+		startTime := timestamppb.New(board.StartTime)
+		createAt := timestamppb.New(board.CreatedAt)
+		updateAt := timestamppb.New(board.UpdatedAt)
+
+		boardList = append(boardList, &grpc_board.Board{
+			Id:                   board.ID,
+			Type:                 board.Type,
+			UserId:               board.UserID,
+			Description:          board.Description,
+			DepartureLatitude:    float32(board.DepartureLatitude),
+			DepartureLongitude:   float32(board.DepartureLongitude),
+			DestinationLatitude:  float32(board.DestinationLatitude),
+			DestinationLongitude: float32(board.DestinationLongitude),
+			Reward:               board.Reward,
+			StartTime:            startTime,
+			CreatedAt:            createAt,
+			UpdatedAt:            updateAt,
+		})
+	}
+
+	return &grpc_board.BoardList{
+		Boards: boardList,
+	}, nil
+}

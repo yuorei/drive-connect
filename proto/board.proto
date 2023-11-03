@@ -46,13 +46,13 @@ message ID {
 service BoardService {
     rpc CreateBoard(Board) returns (Board);
     rpc ReadBoard(ID) returns (Board);
-    rpc ReadAllBoard(ID) returns (BoardList);
+    rpc ReadAllBoard(google.protobuf.Empty) returns (BoardList);
     rpc UpdateBoard(Board) returns (Board);
     rpc DeleteBoard(ID) returns (google.protobuf.Empty);
 
     rpc CreateComment(Comment) returns (Comment);
     rpc ReadComment(ID) returns (Comment);
-    rpc ReadAllComment(ID) returns (CommentList);
+    rpc ReadAllComment(google.protobuf.Empty) returns (CommentList);
     rpc UpdateComment(Comment) returns (Comment);
     rpc DeleteComment(ID) returns (google.protobuf.Empty);
 }

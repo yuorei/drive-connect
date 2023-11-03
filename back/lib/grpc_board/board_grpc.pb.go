@@ -38,12 +38,12 @@ const (
 type BoardServiceClient interface {
 	CreateBoard(ctx context.Context, in *Board, opts ...grpc.CallOption) (*Board, error)
 	ReadBoard(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Board, error)
-	ReadAllBoard(ctx context.Context, in *ID, opts ...grpc.CallOption) (*BoardList, error)
+	ReadAllBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*BoardList, error)
 	UpdateBoard(ctx context.Context, in *Board, opts ...grpc.CallOption) (*Board, error)
 	DeleteBoard(ctx context.Context, in *ID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	CreateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*Comment, error)
 	ReadComment(ctx context.Context, in *ID, opts ...grpc.CallOption) (*Comment, error)
-	ReadAllComment(ctx context.Context, in *ID, opts ...grpc.CallOption) (*CommentList, error)
+	ReadAllComment(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CommentList, error)
 	UpdateComment(ctx context.Context, in *Comment, opts ...grpc.CallOption) (*Comment, error)
 	DeleteComment(ctx context.Context, in *ID, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -74,7 +74,7 @@ func (c *boardServiceClient) ReadBoard(ctx context.Context, in *ID, opts ...grpc
 	return out, nil
 }
 
-func (c *boardServiceClient) ReadAllBoard(ctx context.Context, in *ID, opts ...grpc.CallOption) (*BoardList, error) {
+func (c *boardServiceClient) ReadAllBoard(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*BoardList, error) {
 	out := new(BoardList)
 	err := c.cc.Invoke(ctx, BoardService_ReadAllBoard_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -119,7 +119,7 @@ func (c *boardServiceClient) ReadComment(ctx context.Context, in *ID, opts ...gr
 	return out, nil
 }
 
-func (c *boardServiceClient) ReadAllComment(ctx context.Context, in *ID, opts ...grpc.CallOption) (*CommentList, error) {
+func (c *boardServiceClient) ReadAllComment(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*CommentList, error) {
 	out := new(CommentList)
 	err := c.cc.Invoke(ctx, BoardService_ReadAllComment_FullMethodName, in, out, opts...)
 	if err != nil {
@@ -152,12 +152,12 @@ func (c *boardServiceClient) DeleteComment(ctx context.Context, in *ID, opts ...
 type BoardServiceServer interface {
 	CreateBoard(context.Context, *Board) (*Board, error)
 	ReadBoard(context.Context, *ID) (*Board, error)
-	ReadAllBoard(context.Context, *ID) (*BoardList, error)
+	ReadAllBoard(context.Context, *emptypb.Empty) (*BoardList, error)
 	UpdateBoard(context.Context, *Board) (*Board, error)
 	DeleteBoard(context.Context, *ID) (*emptypb.Empty, error)
 	CreateComment(context.Context, *Comment) (*Comment, error)
 	ReadComment(context.Context, *ID) (*Comment, error)
-	ReadAllComment(context.Context, *ID) (*CommentList, error)
+	ReadAllComment(context.Context, *emptypb.Empty) (*CommentList, error)
 	UpdateComment(context.Context, *Comment) (*Comment, error)
 	DeleteComment(context.Context, *ID) (*emptypb.Empty, error)
 	mustEmbedUnimplementedBoardServiceServer()
@@ -173,7 +173,7 @@ func (UnimplementedBoardServiceServer) CreateBoard(context.Context, *Board) (*Bo
 func (UnimplementedBoardServiceServer) ReadBoard(context.Context, *ID) (*Board, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadBoard not implemented")
 }
-func (UnimplementedBoardServiceServer) ReadAllBoard(context.Context, *ID) (*BoardList, error) {
+func (UnimplementedBoardServiceServer) ReadAllBoard(context.Context, *emptypb.Empty) (*BoardList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadAllBoard not implemented")
 }
 func (UnimplementedBoardServiceServer) UpdateBoard(context.Context, *Board) (*Board, error) {
@@ -188,7 +188,7 @@ func (UnimplementedBoardServiceServer) CreateComment(context.Context, *Comment) 
 func (UnimplementedBoardServiceServer) ReadComment(context.Context, *ID) (*Comment, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadComment not implemented")
 }
-func (UnimplementedBoardServiceServer) ReadAllComment(context.Context, *ID) (*CommentList, error) {
+func (UnimplementedBoardServiceServer) ReadAllComment(context.Context, *emptypb.Empty) (*CommentList, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method ReadAllComment not implemented")
 }
 func (UnimplementedBoardServiceServer) UpdateComment(context.Context, *Comment) (*Comment, error) {
@@ -247,7 +247,7 @@ func _BoardService_ReadBoard_Handler(srv interface{}, ctx context.Context, dec f
 }
 
 func _BoardService_ReadAllBoard_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ID)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -259,7 +259,7 @@ func _BoardService_ReadAllBoard_Handler(srv interface{}, ctx context.Context, de
 		FullMethod: BoardService_ReadAllBoard_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BoardServiceServer).ReadAllBoard(ctx, req.(*ID))
+		return srv.(BoardServiceServer).ReadAllBoard(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -337,7 +337,7 @@ func _BoardService_ReadComment_Handler(srv interface{}, ctx context.Context, dec
 }
 
 func _BoardService_ReadAllComment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(ID)
+	in := new(emptypb.Empty)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -349,7 +349,7 @@ func _BoardService_ReadAllComment_Handler(srv interface{}, ctx context.Context, 
 		FullMethod: BoardService_ReadAllComment_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(BoardServiceServer).ReadAllComment(ctx, req.(*ID))
+		return srv.(BoardServiceServer).ReadAllComment(ctx, req.(*emptypb.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -37,3 +37,21 @@ func (s *authService) Login(ctx context.Context, request *grpc_back.LoginRequest
 		Token: token,
 	}, nil
 }
+
+func (s *authService) JwtValidate(ctx context.Context, request *grpc_back.JwtValidateRequest) (*grpc_back.JwtValidateResponse, error) {
+	token, err := jwt.Parse(request.Token, func(token *jwt.Token) (interface{}, error) {
+		return []byte(os.Getenv("JWT_SECRET")), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return nil, err
+	}
+
+	return &grpc_back.JwtValidateResponse{
+		UserId: claims["user_id"].(string),
+	}, nil
+}

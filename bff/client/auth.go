@@ -20,3 +20,16 @@ func (c *Client) Login(input model.LoginInput) (*grpc_back.LoginResponse, error)
 	}
 	return response, nil
 }
+
+func (c *Client) JwtValidate(token string) (*grpc_back.JwtValidateResponse, error) {
+	// リクエストの生成
+	request := &grpc_back.JwtValidateRequest{
+		Token: token,
+	}
+
+	response, err := c.authClient.JwtValidate(context.Background(), request)
+	if err != nil {
+		return nil, err
+	}
+	return response, nil
+}

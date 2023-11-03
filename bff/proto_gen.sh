@@ -1,8 +1,9 @@
 # ソースコードの出力先
-PROTO_DEST=./proto
+PROTO_DEST=./src/proto
 # protoファイルが置いてあるディレクトリ
 PROTO_SRC=../proto
-
+rm -r ${PROTO_DEST}
+mkdir -p ${PROTO_DEST}
 # Protocol BuffersからnodeのgRPCコードを自動生成
 grpc_tools_node_protoc \
   --js_out=import_style=commonjs,binary:${PROTO_DEST} \

@@ -1,0 +1,64 @@
+
+
+type Board {
+    id: ID!
+    type: String!
+    user: User!
+    description: String!
+    departure_latitude: Float!
+    departure_longitude: Float!
+    destination_latitude: Float!
+    destination_longitude: Float!
+    reward: String!
+    start_time: String!
+    created_at: String!
+    updated_at: String!
+    comments: [Comment!]!
+}
+
+type Comment {
+    id: ID!
+    post: Board!
+    commenter: User!
+    content: String!
+    created_at: String!
+    updated_at: String!
+}
+
+input BoardInput {
+    type: String!
+    user_id: ID!
+    description: String!
+    departure_latitude: Float!
+    departure_longitude: Float!
+    destination_latitude: Float!
+    destination_longitude: Float!
+    reward: String!
+    start_time: String!
+    created_at: String!
+    updated_at: String!
+}
+
+input CommentInput {
+    post_id: ID!
+    commenter_id: ID!
+    content: String!
+    created_at: String!
+    updated_at: String!
+}
+
+type Query {
+    boards: [Board!]!
+    board(id: ID!): Board
+    comments: [Comment!]!
+    comment(id: ID!): Comment
+}
+
+type Mutation {
+    createBoard(input: BoardInput!): Board!
+    createComment(input: CommentInput!): Comment!
+    updateBoard(id: ID!, input: BoardInput!): Board!
+    updateComment(id: ID!, input: CommentInput!): Comment!
+    deleteBoard(id: ID!): Board!
+    deleteComment(id: ID!): Comment!
+}

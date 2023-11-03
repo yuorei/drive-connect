@@ -1,9 +1,10 @@
 package main
 
 import (
+	"drive-connect/application"
 	"drive-connect/db"
+	"drive-connect/lib/grpc_board"
 	"drive-connect/lib/grpc_user"
-	"drive-connect/user"
 	"fmt"
 	"log"
 	"net"
@@ -22,7 +23,8 @@ func main() {
 	s := grpc.NewServer()
 	dbConn := db.ConnectionDB()
 	dbConn.CreateTable()
-	grpc_user.RegisterUserServiceServer(s, user.NewUserService(dbConn))
+	grpc_user.RegisterUserServiceServer(s, application.NewUserService(dbConn))
+	grpc_board.RegisterBoardServiceServer(s, application.NewBoardService(dbConn))
 
 	reflection.Register(s)
 

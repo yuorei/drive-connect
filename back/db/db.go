@@ -57,11 +57,7 @@ func (db *DB) CreateTable() {
 		log.Fatalf("Database create table failed")
 	}
 
-	if err := db.Conn.AutoMigrate(&model.DriverBoard{}); err != nil {
-		log.Fatalf("Database create table failed")
-	}
-
-	if err := db.Conn.AutoMigrate(&model.PassengerBoard{}); err != nil {
+	if err := db.Conn.AutoMigrate(&model.Board{}); err != nil {
 		log.Fatalf("Database create table failed")
 	}
 }

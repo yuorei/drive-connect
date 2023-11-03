@@ -20,7 +20,7 @@ input UserInput {
 
 type Query {
     users: [User!]!
-    user(id: ID!): User
+    user: User @auth
 }
 
 type Mutation {

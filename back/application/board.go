@@ -5,7 +5,7 @@ import (
 	"drive-connect/db"
 
 	"drive-connect/db/model"
-	"drive-connect/lib/grpc_board"
+	"drive-connect/lib/grpc_back"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,11 +21,11 @@ func NewBoardService(db *db.DB) *boardService {
 }
 
 type boardService struct {
-	grpc_board.UnimplementedBoardServiceServer
+	grpc_back.UnimplementedBoardServiceServer
 	db *db.DB
 }
 
-func (s *boardService) GetBoardById(ctx context.Context, request *grpc_board.ID) (*grpc_board.Board, error) {
+func (s *boardService) GetBoardById(ctx context.Context, request *grpc_back.BoardID) (*grpc_back.Board, error) {
 	board, err := s.db.GetBoardById(request.Id)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (s *boardService) GetBoardById(ctx context.Context, request *grpc_board.ID)
 	createAt := timestamppb.New(board.CreatedAt)
 	updateAt := timestamppb.New(board.UpdatedAt)
 
-	return &grpc_board.Board{
+	return &grpc_back.Board{
 		Id:                   board.ID,
 		Type:                 board.Type,
 		UserId:               board.UserID,
@@ -50,7 +50,7 @@ func (s *boardService) GetBoardById(ctx context.Context, request *grpc_board.ID)
 	}, nil
 }
 
-func (s *boardService) CreateBoard(ctx context.Context, request *grpc_board.Board) (*grpc_board.Board, error) {
+func (s *boardService) CreateBoard(ctx context.Context, request *grpc_back.Board) (*grpc_back.Board, error) {
 	now := time.Now()
 	board := model.Board{
 		ID:                   uuid.New().String(),
@@ -76,7 +76,7 @@ func (s *boardService) CreateBoard(ctx context.Context, request *grpc_board.Boar
 	createAt := timestamppb.New(time.Now())
 	updateAt := createAt
 
-	return &grpc_board.Board{
+	return &grpc_back.Board{
 		Id:                   board.ID,
 		Type:                 board.Type,
 		UserId:               board.UserID,
@@ -92,7 +92,7 @@ func (s *boardService) CreateBoard(ctx context.Context, request *grpc_board.Boar
 	}, nil
 }
 
-func (s *boardService) UpdateBoard(ctx context.Context, request *grpc_board.Board) (*grpc_board.Board, error) {
+func (s *boardService) UpdateBoard(ctx context.Context, request *grpc_back.Board) (*grpc_back.Board, error) {
 	now := time.Now()
 	board := &model.Board{
 		ID:                   request.Id,
@@ -118,7 +118,7 @@ func (s *boardService) UpdateBoard(ctx context.Context, request *grpc_board.Boar
 	createAt := request.CreatedAt
 	updateAt := timestamppb.New(now)
 
-	return &grpc_board.Board{
+	return &grpc_back.Board{
 		Id:                   board.ID,
 		Type:                 board.Type,
 		UserId:               board.UserID,
@@ -134,7 +134,7 @@ func (s *boardService) UpdateBoard(ctx context.Context, request *grpc_board.Boar
 	}, nil
 }
 
-func (s *boardService) DeleteBoard(ctx context.Context, request *grpc_board.ID) (*emptypb.Empty, error) {
+func (s *boardService) DeleteBoard(ctx context.Context, request *grpc_back.BoardID) (*emptypb.Empty, error) {
 	err := s.db.DeleteBoard(request.Id)
 	if err != nil {
 		return nil, err
@@ -143,20 +143,20 @@ func (s *boardService) DeleteBoard(ctx context.Context, request *grpc_board.ID) 
 	return &emptypb.Empty{}, nil
 }
 
-func (s *boardService) GetBoardList(ctx context.Context, _ *emptypb.Empty) (*grpc_board.BoardList, error) {
+func (s *boardService) GetBoardList(ctx context.Context, _ *emptypb.Empty) (*grpc_back.BoardList, error) {
 	boards, err := s.db.GetBoardList()
 	if err != nil {
 		return nil, err
 	}
 
-	var boardList []*grpc_board.Board
+	var boardList []*grpc_back.Board
 
 	for _, board := range boards {
 		startTime := timestamppb.New(board.StartTime)
 		createAt := timestamppb.New(board.CreatedAt)
 		updateAt := timestamppb.New(board.UpdatedAt)
 
-		boardList = append(boardList, &grpc_board.Board{
+		boardList = append(boardList, &grpc_back.Board{
 			Id:                   board.ID,
 			Type:                 board.Type,
 			UserId:               board.UserID,
@@ -172,12 +172,12 @@ func (s *boardService) GetBoardList(ctx context.Context, _ *emptypb.Empty) (*grp
 		})
 	}
 
-	return &grpc_board.BoardList{
+	return &grpc_back.BoardList{
 		Boards: boardList,
 	}, nil
 }
 
-func (s *boardService) GetCommentById(ctx context.Context, request *grpc_board.ID) (*grpc_board.Comment, error) {
+func (s *boardService) GetCommentById(ctx context.Context, request *grpc_back.BoardID) (*grpc_back.Comment, error) {
 	board, err := s.db.GetCommentById(request.Id)
 	if err != nil {
 		return nil, err
@@ -186,7 +186,7 @@ func (s *boardService) GetCommentById(ctx context.Context, request *grpc_board.I
 	createAt := timestamppb.New(board.CreatedAt)
 	updateAt := timestamppb.New(board.UpdatedAt)
 
-	return &grpc_board.Comment{
+	return &grpc_back.Comment{
 		Id:          board.ID,
 		PostId:      board.PostID,
 		CommenterId: board.CommenterID,
@@ -196,7 +196,7 @@ func (s *boardService) GetCommentById(ctx context.Context, request *grpc_board.I
 	}, nil
 }
 
-func (s *boardService) CreateComment(ctx context.Context, request *grpc_board.Comment) (*grpc_board.Comment, error) {
+func (s *boardService) CreateComment(ctx context.Context, request *grpc_back.Comment) (*grpc_back.Comment, error) {
 	now := time.Now()
 	board := model.Comment{
 		ID:          uuid.New().String(),
@@ -215,7 +215,7 @@ func (s *boardService) CreateComment(ctx context.Context, request *grpc_board.Co
 	createAt := timestamppb.New(time.Now())
 	updateAt := createAt
 
-	return &grpc_board.Comment{
+	return &grpc_back.Comment{
 		Id:          board.ID,
 		PostId:      board.PostID,
 		CommenterId: board.CommenterID,
@@ -225,7 +225,7 @@ func (s *boardService) CreateComment(ctx context.Context, request *grpc_board.Co
 	}, nil
 }
 
-func (s *boardService) UpdateComment(ctx context.Context, request *grpc_board.Comment) (*grpc_board.Comment, error) {
+func (s *boardService) UpdateComment(ctx context.Context, request *grpc_back.Comment) (*grpc_back.Comment, error) {
 	now := time.Now()
 	board := &model.Comment{
 		ID:          uuid.New().String(),
@@ -244,7 +244,7 @@ func (s *boardService) UpdateComment(ctx context.Context, request *grpc_board.Co
 	createAt := request.CreatedAt
 	updateAt := timestamppb.New(now)
 
-	return &grpc_board.Comment{
+	return &grpc_back.Comment{
 		Id:          board.ID,
 		PostId:      board.PostID,
 		CommenterId: board.CommenterID,
@@ -254,7 +254,7 @@ func (s *boardService) UpdateComment(ctx context.Context, request *grpc_board.Co
 	}, nil
 }
 
-func (s *boardService) DeleteComment(ctx context.Context, request *grpc_board.ID) (*emptypb.Empty, error) {
+func (s *boardService) DeleteComment(ctx context.Context, request *grpc_back.BoardID) (*emptypb.Empty, error) {
 	err := s.db.DeleteComment(request.Id)
 	if err != nil {
 		return nil, err
@@ -263,19 +263,19 @@ func (s *boardService) DeleteComment(ctx context.Context, request *grpc_board.ID
 	return &emptypb.Empty{}, nil
 }
 
-func (s *boardService) GetCommentList(ctx context.Context, _ *emptypb.Empty) (*grpc_board.CommentList, error) {
+func (s *boardService) GetCommentList(ctx context.Context, _ *emptypb.Empty) (*grpc_back.CommentList, error) {
 	boards, err := s.db.GetCommentList()
 	if err != nil {
 		return nil, err
 	}
 
-	var boardList []*grpc_board.Comment
+	var boardList []*grpc_back.Comment
 
 	for _, board := range boards {
 		createAt := timestamppb.New(board.CreatedAt)
 		updateAt := timestamppb.New(board.UpdatedAt)
 
-		boardList = append(boardList, &grpc_board.Comment{
+		boardList = append(boardList, &grpc_back.Comment{
 			Id:          board.ID,
 			PostId:      board.PostID,
 			CommenterId: board.CommenterID,
@@ -285,7 +285,7 @@ func (s *boardService) GetCommentList(ctx context.Context, _ *emptypb.Empty) (*g
 		})
 	}
 
-	return &grpc_board.CommentList{
+	return &grpc_back.CommentList{
 		Comments: boardList,
 	}, nil
 }

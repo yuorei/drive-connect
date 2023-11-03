@@ -1,0 +1,58 @@
+syntax = "proto3";
+
+package board;
+
+option go_package = "/grpc_board";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+message Board {
+    string id = 1;
+    string type = 2;
+    string user_id = 3;
+    string description = 4;
+    float departure_latitude = 5;
+    float departure_longitude = 6;
+    float destination_latitude = 7;
+    float destination_longitude = 8;
+    string reward = 9;
+    google.protobuf.Timestamp start_time = 10;
+    google.protobuf.Timestamp created_at = 11;
+    google.protobuf.Timestamp updated_at = 12;
+}
+
+message BoardList {
+    repeated Board boards = 1;
+}
+
+message Comment {
+    string id = 1;
+    string post_id = 2;
+    string commenter_id = 3;
+    string content = 4;
+    google.protobuf.Timestamp created_at = 5;
+    google.protobuf.Timestamp updated_at = 6;
+}
+
+message CommentList {
+    repeated Comment comments = 1;
+}
+
+message ID {
+    string id = 1;
+  }
+
+service BoardService {
+    rpc CreateBoard(Board) returns (Board);
+    rpc ReadBoard(ID) returns (Board);
+    rpc ReadAllBoard(ID) returns (BoardList);
+    rpc UpdateBoard(Board) returns (Board);
+    rpc DeleteBoard(ID) returns (google.protobuf.Empty);
+
+    rpc CreateComment(Comment) returns (Comment);
+    rpc ReadComment(ID) returns (Comment);
+    rpc ReadAllComment(ID) returns (CommentList);
+    rpc UpdateComment(Comment) returns (Comment);
+    rpc DeleteComment(ID) returns (google.protobuf.Empty);
+}

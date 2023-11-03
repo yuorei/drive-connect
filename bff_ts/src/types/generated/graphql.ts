@@ -21,7 +21,7 @@ export type Scalars = {
 export type Board = {
   __typename?: 'Board';
   comments: Array<Comment>;
-  created_at: Scalars['String']['output'];
+  created_at?: Maybe<Scalars['String']['output']>;
   departure_latitude: Scalars['Float']['output'];
   departure_longitude: Scalars['Float']['output'];
   description: Scalars['String']['output'];
@@ -31,12 +31,12 @@ export type Board = {
   reward: Scalars['String']['output'];
   start_time: Scalars['String']['output'];
   type: Scalars['String']['output'];
-  updated_at: Scalars['String']['output'];
-  user: User;
+  updated_at?: Maybe<Scalars['String']['output']>;
+  user?: Maybe<User>;
 };
 
 export type BoardInput = {
-  created_at: Scalars['String']['input'];
+  created_at?: InputMaybe<Scalars['String']['input']>;
   departure_latitude: Scalars['Float']['input'];
   departure_longitude: Scalars['Float']['input'];
   description: Scalars['String']['input'];
@@ -45,7 +45,7 @@ export type BoardInput = {
   reward: Scalars['String']['input'];
   start_time: Scalars['String']['input'];
   type: Scalars['String']['input'];
-  updated_at: Scalars['String']['input'];
+  updated_at?: InputMaybe<Scalars['String']['input']>;
   user_id: Scalars['ID']['input'];
 };
 
@@ -62,9 +62,9 @@ export type Comment = {
 export type CommentInput = {
   commenter_id: Scalars['ID']['input'];
   content: Scalars['String']['input'];
-  created_at: Scalars['String']['input'];
+  created_at?: InputMaybe<Scalars['String']['input']>;
   post_id: Scalars['ID']['input'];
-  updated_at: Scalars['String']['input'];
+  updated_at?: InputMaybe<Scalars['String']['input']>;
 };
 
 export type Mutation = {
@@ -155,26 +155,23 @@ export type QueryUserArgs = {
 
 export type User = {
   __typename?: 'User';
-  boards: Array<Board>;
-  comments: Array<Comment>;
+  boards?: Maybe<Array<Board>>;
+  comments?: Maybe<Array<Comment>>;
   created_at: Scalars['String']['output'];
   email: Scalars['String']['output'];
   id: Scalars['ID']['output'];
   is_driver: Scalars['Boolean']['output'];
   name: Scalars['String']['output'];
-  password: Scalars['String']['output'];
+  password?: Maybe<Scalars['String']['output']>;
   profileImageURL?: Maybe<Scalars['String']['output']>;
   updated_at: Scalars['String']['output'];
 };
 
 export type UserInput = {
-  created_at: Scalars['String']['input'];
   email: Scalars['String']['input'];
   is_driver: Scalars['Boolean']['input'];
   name: Scalars['String']['input'];
   password: Scalars['String']['input'];
-  profileImageURL?: InputMaybe<Scalars['String']['input']>;
-  updated_at: Scalars['String']['input'];
 };
 
 export type WithIndex<TObject> = TObject & Record<string, any>;
@@ -283,7 +280,7 @@ export type ResolversParentTypes = ResolversObject<{
 
 export type BoardResolvers<ContextType = Context, ParentType extends ResolversParentTypes['Board'] = ResolversParentTypes['Board']> = ResolversObject<{
   comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>;
-  created_at?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  created_at?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   departure_latitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   departure_longitude?: Resolver<ResolversTypes['Float'], ParentType, ContextType>;
   description?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
@@ -293,8 +290,8 @@ export type BoardResolvers<ContextType = Context, ParentType extends ResolversPa
   reward?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   start_time?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   type?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  updated_at?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  user?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  updated_at?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 }>;
 
@@ -334,14 +331,14 @@ export type QueryResolvers<ContextType = Context, ParentType extends ResolversPa
 }>;
 
 export type UserResolvers<ContextType = Context, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = ResolversObject<{
-  boards?: Resolver<Array<ResolversTypes['Board']>, ParentType, ContextType>;
-  comments?: Resolver<Array<ResolversTypes['Comment']>, ParentType, ContextType>;
+  boards?: Resolver<Maybe<Array<ResolversTypes['Board']>>, ParentType, ContextType>;
+  comments?: Resolver<Maybe<Array<ResolversTypes['Comment']>>, ParentType, ContextType>;
   created_at?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   email?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
   is_driver?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType>;
   name?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  password?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  password?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   profileImageURL?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   updated_at?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

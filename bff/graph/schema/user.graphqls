@@ -2,13 +2,13 @@ type User {
     id: ID!
     email: String!
     name: String!
-    password: String!
+    password: String
     is_driver: Boolean!
     profileImageURL: String
     created_at: String!
     updated_at: String!
-    boards: [Board!]!
-    comments: [Comment!]!
+    boards: [Board!]
+    comments: [Comment!]
 }
 
 input UserInput {
@@ -16,9 +16,6 @@ input UserInput {
     name: String!
     password: String!
     is_driver: Boolean!
-    profileImageURL: String
-    created_at: String!
-    updated_at: String!
 }
 
 type Query {

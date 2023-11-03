@@ -3,7 +3,7 @@
 type Board {
     id: ID!
     type: String!
-    user: User!
+    user: User
     description: String!
     departure_latitude: Float!
     departure_longitude: Float!
@@ -11,8 +11,8 @@ type Board {
     destination_longitude: Float!
     reward: String!
     start_time: String!
-    created_at: String!
-    updated_at: String!
+    created_at: String
+    updated_at: String
     comments: [Comment!]!
 }
 
@@ -35,26 +35,26 @@ input BoardInput {
     destination_longitude: Float!
     reward: String!
     start_time: String!
-    created_at: String!
-    updated_at: String!
+    created_at: String
+    updated_at: String
 }
 
 input CommentInput {
     post_id: ID!
     commenter_id: ID!
     content: String!
-    created_at: String!
-    updated_at: String!
+    created_at: String
+    updated_at: String
 }
 
-type Query {
+extend type Query {
     boards: [Board!]!
     board(id: ID!): Board
     comments: [Comment!]!
     comment(id: ID!): Comment
 }
 
-type Mutation {
+extend type Mutation {
     createBoard(input: BoardInput!): Board!
     createComment(input: CommentInput!): Comment!
     updateBoard(id: ID!, input: BoardInput!): Board!

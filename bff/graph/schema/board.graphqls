@@ -27,7 +27,6 @@ type Comment {
 
 input BoardInput {
     type: String!
-    user_id: ID!
     description: String!
     departure_latitude: Float!
     departure_longitude: Float!
@@ -49,7 +48,7 @@ input CommentInput {
 
 extend type Query {
     boards: [Board!]!
-    board(id: ID!): Board
+    board(id: ID!): Board @auth
     comments: [Comment!]!
     comment(id: ID!): Comment
 }

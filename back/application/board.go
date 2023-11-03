@@ -3,6 +3,7 @@ package application
 import (
 	"context"
 	"drive-connect/db"
+	"fmt"
 
 	"drive-connect/db/model"
 	"drive-connect/lib/grpc_back"
@@ -25,7 +26,7 @@ type boardService struct {
 	db *db.DB
 }
 
-func (s *boardService) GetBoardById(ctx context.Context, request *grpc_back.BoardID) (*grpc_back.Board, error) {
+func (s *boardService) ReadBoard(ctx context.Context, request *grpc_back.BoardID) (*grpc_back.Board, error) {
 	board, err := s.db.GetBoardById(request.Id)
 	if err != nil {
 		return nil, err
@@ -52,6 +53,7 @@ func (s *boardService) GetBoardById(ctx context.Context, request *grpc_back.Boar
 
 func (s *boardService) CreateBoard(ctx context.Context, request *grpc_back.Board) (*grpc_back.Board, error) {
 	now := time.Now()
+	fmt.Println(request.StartTime.AsTime(), "!!!!!!!!!!!!!!")
 	board := model.Board{
 		ID:                   uuid.New().String(),
 		Type:                 request.Type,
@@ -143,8 +145,8 @@ func (s *boardService) DeleteBoard(ctx context.Context, request *grpc_back.Board
 	return &emptypb.Empty{}, nil
 }
 
-func (s *boardService) GetBoardList(ctx context.Context, _ *emptypb.Empty) (*grpc_back.BoardList, error) {
-	boards, err := s.db.GetBoardList()
+func (s *boardService) ReadAllBoard(ctx context.Context, _ *emptypb.Empty) (*grpc_back.BoardList, error) {
+	boards, err := s.db.ReadAllBoard()
 	if err != nil {
 		return nil, err
 	}

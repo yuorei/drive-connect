@@ -28,7 +28,6 @@ type Board struct {
 
 type BoardInput struct {
 	Type                 string  `json:"type"`
-	UserID               string  `json:"user_id"`
 	Description          string  `json:"description"`
 	DepartureLatitude    float64 `json:"departure_latitude"`
 	DepartureLongitude   float64 `json:"departure_longitude"`

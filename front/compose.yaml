@@ -11,4 +11,4 @@ services:
       - 5173:5173
     tty: true
     stdin_open: true
-    command: bun run dev
+    command: bash

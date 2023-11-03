@@ -5,7 +5,7 @@ import (
 	"drive-connect/db"
 
 	"drive-connect/db/model"
-	"drive-connect/lib/grpc_user"
+	"drive-connect/lib/grpc_back"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,11 +21,11 @@ func NewUserService(db *db.DB) *userService {
 }
 
 type userService struct {
-	grpc_user.UnimplementedUserServiceServer
+	grpc_back.UnimplementedUserServiceServer
 	db *db.DB
 }
 
-func (s *userService) GetUserById(ctx context.Context, request *grpc_user.ID) (*grpc_user.User, error) {
+func (s *userService) GetUserById(ctx context.Context, request *grpc_back.UserID) (*grpc_back.User, error) {
 	user, err := s.db.GetUserById(request.Id)
 	if err != nil {
 		return nil, err
@@ -34,7 +34,7 @@ func (s *userService) GetUserById(ctx context.Context, request *grpc_user.ID) (*
 	createAt := timestamppb.New(user.CreatedAt)
 	updateAt := timestamppb.New(user.UpdatedAt)
 
-	return &grpc_user.User{
+	return &grpc_back.User{
 		Id:              user.ID,
 		Name:            user.Name,
 		Email:           user.Email,
@@ -46,7 +46,7 @@ func (s *userService) GetUserById(ctx context.Context, request *grpc_user.ID) (*
 	}, nil
 }
 
-func (s *userService) CreateUser(ctx context.Context, request *grpc_user.User) (*grpc_user.User, error) {
+func (s *userService) CreateUser(ctx context.Context, request *grpc_back.User) (*grpc_back.User, error) {
 	now := time.Now()
 	user := model.User{
 		ID:              uuid.New().String(),
@@ -67,7 +67,7 @@ func (s *userService) CreateUser(ctx context.Context, request *grpc_user.User) (
 	createAt := timestamppb.New(time.Now())
 	updateAt := createAt
 
-	return &grpc_user.User{
+	return &grpc_back.User{
 		Id:              user.ID,
 		Name:            user.Name,
 		Email:           user.Email,
@@ -79,7 +79,7 @@ func (s *userService) CreateUser(ctx context.Context, request *grpc_user.User) (
 	}, nil
 }
 
-func (s *userService) UpdateUser(ctx context.Context, request *grpc_user.User) (*grpc_user.User, error) {
+func (s *userService) UpdateUser(ctx context.Context, request *grpc_back.User) (*grpc_back.User, error) {
 	now := time.Now()
 	user := &model.User{
 		ID:              request.Id,
@@ -100,7 +100,7 @@ func (s *userService) UpdateUser(ctx context.Context, request *grpc_user.User) (
 	createAt := request.CreatedAt
 	updateAt := timestamppb.New(now)
 
-	return &grpc_user.User{
+	return &grpc_back.User{
 		Id:              user.ID,
 		Name:            user.Name,
 		Email:           user.Email,
@@ -112,7 +112,7 @@ func (s *userService) UpdateUser(ctx context.Context, request *grpc_user.User) (
 	}, nil
 }
 
-func (s *userService) DeleteUser(ctx context.Context, request *grpc_user.ID) (*emptypb.Empty, error) {
+func (s *userService) DeleteUser(ctx context.Context, request *grpc_back.UserID) (*emptypb.Empty, error) {
 	err := s.db.DeleteUser(request.Id)
 	if err != nil {
 		return nil, err

@@ -1,0 +1,25 @@
+directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @auth on FIELD_DEFINITION
+
+extend type Mutation {
+  auth: AuthOps! @goField(forceResolver: true)
+}
+
+input LoginInput {
+    email: String!
+    password: String!
+}
+
+type AuthPayload {
+    token: String!
+}
+
+type AuthOps {
+  login(input: LoginInput!): AuthPayload! @goField(forceResolver: true)
+}
+
+
+
+
+

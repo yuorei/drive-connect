@@ -55,10 +55,10 @@ extend type Query {
 }
 
 extend type Mutation {
-    createBoard(input: BoardInput!): Board!
-    createComment(input: CommentInput!): Comment!
-    updateBoard(id: ID!, input: BoardInput!): Board!
-    updateComment(id: ID!, input: CommentInput!): Comment!
-    deleteBoard(id: ID!): Board!
-    deleteComment(id: ID!): Comment!
+    createBoard(input: BoardInput!): Board! @auth
+    createComment(input: CommentInput!): Comment! @auth
+    updateBoard(id: ID!, input: BoardInput!): Board! @auth
+    updateComment(id: ID!, input: CommentInput!): Comment! @auth
+    deleteBoard(id: ID!): Board! @auth
+    deleteComment(id: ID!): Comment! @auth
 }

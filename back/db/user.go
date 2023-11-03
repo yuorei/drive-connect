@@ -38,3 +38,12 @@ func (d *DB) DeleteUser(id string) error {
 	}
 	return nil
 }
+
+// GetUserList
+func (d *DB) GetUserList() ([]*model.User, error) {
+	var users []*model.User
+	if err := d.Conn.Find(&users).Error; err != nil {
+		return nil, err
+	}
+	return users, nil
+}

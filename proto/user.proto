@@ -22,9 +22,14 @@ message UserID {
   string id = 1;
 }
 
+message UserList {
+  repeated User users = 1;
+}
+
 service UserService {
     rpc CreateUser(User) returns (User);
     rpc GetUserById(UserID) returns (User);
     rpc UpdateUser(User) returns (User);
     rpc DeleteUser(UserID) returns (google.protobuf.Empty);
+    rpc GetUserList(google.protobuf.Empty) returns (UserList);
 }

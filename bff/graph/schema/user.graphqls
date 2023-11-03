@@ -1,0 +1,30 @@
+type User {
+    id: ID!
+    email: String!
+    name: String!
+    password: String
+    is_driver: Boolean!
+    profileImageURL: String
+    created_at: String!
+    updated_at: String!
+    boards: [Board!]
+    comments: [Comment!]
+}
+
+input UserInput {
+    email: String!
+    name: String!
+    password: String!
+    is_driver: Boolean!
+}
+
+type Query {
+    users: [User!]!
+    user(id: ID!): User
+}
+
+type Mutation {
+    createUser(input: UserInput!): User!
+    updateUser(id: ID!, input: UserInput!): User!
+    deleteUser(id: ID!): User!
+}

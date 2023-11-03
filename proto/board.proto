@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package board;
 
-option go_package = "/grpc_board";
+option go_package = "/grpc_back";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
@@ -39,20 +39,20 @@ message CommentList {
     repeated Comment comments = 1;
 }
 
-message ID {
+message BoardID {
     string id = 1;
   }
 
 service BoardService {
     rpc CreateBoard(Board) returns (Board);
-    rpc ReadBoard(ID) returns (Board);
+    rpc ReadBoard(BoardID) returns (Board);
     rpc ReadAllBoard(google.protobuf.Empty) returns (BoardList);
     rpc UpdateBoard(Board) returns (Board);
-    rpc DeleteBoard(ID) returns (google.protobuf.Empty);
+    rpc DeleteBoard(BoardID) returns (google.protobuf.Empty);
 
     rpc CreateComment(Comment) returns (Comment);
-    rpc ReadComment(ID) returns (Comment);
+    rpc ReadComment(BoardID) returns (Comment);
     rpc ReadAllComment(google.protobuf.Empty) returns (CommentList);
     rpc UpdateComment(Comment) returns (Comment);
-    rpc DeleteComment(ID) returns (google.protobuf.Empty);
+    rpc DeleteComment(BoardID) returns (google.protobuf.Empty);
 }

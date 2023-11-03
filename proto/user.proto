@@ -2,7 +2,7 @@ syntax = "proto3";
 
 package user;
 
-option go_package = "/grpc_user";
+option go_package = "/grpc_back";
 
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/empty.proto";
@@ -18,13 +18,13 @@ message User {
   google.protobuf.Timestamp updated_at = 8;
 }
 
-message ID {
+message UserID {
   string id = 1;
 }
 
 service UserService {
     rpc CreateUser(User) returns (User);
-    rpc GetUserById(ID) returns (User);
+    rpc GetUserById(UserID) returns (User);
     rpc UpdateUser(User) returns (User);
-    rpc DeleteUser(ID) returns (google.protobuf.Empty);
+    rpc DeleteUser(UserID) returns (google.protobuf.Empty);
 }

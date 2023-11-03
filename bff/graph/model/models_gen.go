@@ -2,6 +2,10 @@
 
 package model
 
+type AuthPayload struct {
+	Token string `json:"token"`
+}
+
 type Board struct {
 	ID                   string     `json:"id"`
 	Type                 string     `json:"type"`
@@ -47,6 +51,11 @@ type CommentInput struct {
 	Content     string  `json:"content"`
 	CreatedAt   *string `json:"created_at,omitempty"`
 	UpdatedAt   *string `json:"updated_at,omitempty"`
+}
+
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {

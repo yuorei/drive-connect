@@ -28,7 +28,7 @@ func (s *authService) Login(ctx context.Context, request *grpc_back.LoginRequest
 
 	token, err := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"user_id": user.ID,
-	}).SignedString(os.Getenv("JWT_SECRET"))
+	}).SignedString([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
 		return nil, err
 	}

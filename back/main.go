@@ -24,6 +24,7 @@ func main() {
 	dbConn.CreateTable()
 	grpc_back.RegisterUserServiceServer(s, application.NewUserService(dbConn))
 	grpc_back.RegisterBoardServiceServer(s, application.NewBoardService(dbConn))
+	grpc_back.RegisterAuthServiceServer(s, application.NewAuthService(dbConn))
 
 	reflection.Register(s)
 

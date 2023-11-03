@@ -69,7 +69,7 @@ func (r *queryResolver) Boards(ctx context.Context) ([]*model.Board, error) {
 	for _, board := range boards {
 		startTime := board.StartTime.AsTime().Format(timeformat)
 		createdAt := board.CreatedAt.AsTime().Format(timeformat)
-		updatedAt := board.StartTime.AsTime().Format(timeformat)
+		updatedAt := board.UpdatedAt.AsTime().Format(timeformat)
 		result = append(result, &model.Board{
 			ID: board.Id,
 			User: &model.User{

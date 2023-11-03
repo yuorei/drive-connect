@@ -120,3 +120,31 @@ func (s *userService) DeleteUser(ctx context.Context, request *grpc_back.UserID)
 
 	return &emptypb.Empty{}, nil
 }
+
+func (s *userService) GetUserList(ctx context.Context, request *emptypb.Empty) (*grpc_back.UserList, error) {
+	users, err := s.db.GetUserList()
+	if err != nil {
+		return nil, err
+	}
+
+	var userList []*grpc_back.User
+	for _, user := range users {
+		createAt := timestamppb.New(user.CreatedAt)
+		updateAt := timestamppb.New(user.UpdatedAt)
+
+		userList = append(userList, &grpc_back.User{
+			Id:              user.ID,
+			Name:            user.Name,
+			Email:           user.Email,
+			Password:        user.Password,
+			IsDriver:        user.Driver,
+			ProfileImageURL: user.ProfileImageURL,
+			CreatedAt:       createAt,
+			UpdatedAt:       updateAt,
+		})
+	}
+
+	return &grpc_back.UserList{
+		Users: userList,
+	}, nil
+}

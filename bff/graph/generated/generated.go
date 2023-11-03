@@ -38,14 +38,20 @@ type Config struct {
 }
 
 type ResolverRoot interface {
+	AuthOps() AuthOpsResolver
 	Mutation() MutationResolver
 	Query() QueryResolver
 }
 
 type DirectiveRoot struct {
+	Auth func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
+	AuthOps struct {
+		Login func(childComplexity int, input model.LoginInput) int
+	}
+
 	AuthPayload struct {
 		Token func(childComplexity int) int
 	}
@@ -76,13 +82,13 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
+		Auth          func(childComplexity int) int
 		CreateBoard   func(childComplexity int, input model.BoardInput) int
 		CreateComment func(childComplexity int, input model.CommentInput) int
 		CreateUser    func(childComplexity int, input model.UserInput) int
 		DeleteBoard   func(childComplexity int, id string) int
 		DeleteComment func(childComplexity int, id string) int
 		DeleteUser    func(childComplexity int, id string) int
-		Login         func(childComplexity int, input model.LoginInput) int
 		UpdateBoard   func(childComplexity int, id string, input model.BoardInput) int
 		UpdateComment func(childComplexity int, id string, input model.CommentInput) int
 		UpdateUser    func(childComplexity int, id string, input model.UserInput) int
@@ -111,11 +117,14 @@ type ComplexityRoot struct {
 	}
 }
 
+type AuthOpsResolver interface {
+	Login(ctx context.Context, obj *model.AuthOps, input model.LoginInput) (*model.AuthPayload, error)
+}
 type MutationResolver interface {
 	CreateUser(ctx context.Context, input model.UserInput) (*model.User, error)
 	UpdateUser(ctx context.Context, id string, input model.UserInput) (*model.User, error)
 	DeleteUser(ctx context.Context, id string) (*model.User, error)
-	Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error)
+	Auth(ctx context.Context) (*model.AuthOps, error)
 	CreateBoard(ctx context.Context, input model.BoardInput) (*model.Board, error)
 	CreateComment(ctx context.Context, input model.CommentInput) (*model.Comment, error)
 	UpdateBoard(ctx context.Context, id string, input model.BoardInput) (*model.Board, error)
@@ -150,6 +159,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	ec := executionContext{nil, e, 0, 0, nil}
 	_ = ec
 	switch typeName + "." + field {
+
+	case "AuthOps.login":
+		if e.complexity.AuthOps.Login == nil {
+			break
+		}
+
+		args, err := ec.field_AuthOps_login_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AuthOps.Login(childComplexity, args["input"].(model.LoginInput)), true
 
 	case "AuthPayload.token":
 		if e.complexity.AuthPayload.Token == nil {
@@ -291,6 +312,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.Comment.UpdatedAt(childComplexity), true
 
+	case "Mutation.auth":
+		if e.complexity.Mutation.Auth == nil {
+			break
+		}
+
+		return e.complexity.Mutation.Auth(childComplexity), true
+
 	case "Mutation.createBoard":
 		if e.complexity.Mutation.CreateBoard == nil {
 			break
@@ -362,18 +390,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.DeleteUser(childComplexity, args["id"].(string)), true
-
-	case "Mutation.login":
-		if e.complexity.Mutation.Login == nil {
-			break
-		}
-
-		args, err := ec.field_Mutation_login_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.Mutation.Login(childComplexity, args["input"].(model.LoginInput)), true
 
 	case "Mutation.updateBoard":
 		if e.complexity.Mutation.UpdateBoard == nil {
@@ -647,7 +663,15 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 }
 
 var sources = []*ast.Source{
-	{Name: "../schema/auth.graphqls", Input: `input LoginInput {
+	{Name: "../schema/auth.graphqls", Input: `directive @goField(forceResolver: Boolean, name: String) on FIELD_DEFINITION | INPUT_FIELD_DEFINITION
+
+directive @auth on FIELD_DEFINITION
+
+extend type Mutation {
+  auth: AuthOps! @goField(forceResolver: true)
+}
+
+input LoginInput {
     email: String!
     password: String!
 }
@@ -656,9 +680,15 @@ type AuthPayload {
     token: String!
 }
 
-extend type Mutation {
-    login(input: LoginInput!): AuthPayload!
-}`, BuiltIn: false},
+type AuthOps {
+  login(input: LoginInput!): AuthPayload! @goField(forceResolver: true)
+}
+
+
+
+
+
+`, BuiltIn: false},
 	{Name: "../schema/board.graphqls", Input: `
 
 type Board {
@@ -716,7 +746,7 @@ extend type Query {
 }
 
 extend type Mutation {
-    createBoard(input: BoardInput!): Board!
+    createBoard(input: BoardInput!): Board! @auth
     createComment(input: CommentInput!): Comment!
     updateBoard(id: ID!, input: BoardInput!): Board!
     updateComment(id: ID!, input: CommentInput!): Comment!
@@ -750,7 +780,7 @@ type Query {
 }
 
 type Mutation {
-    createUser(input: UserInput!): User!
+    createUser(input: UserInput!): User! @auth
     updateUser(id: ID!, input: UserInput!): User!
     deleteUser(id: ID!): User!
 }`, BuiltIn: false},
@@ -760,6 +790,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_AuthOps_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.LoginInput
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNLoginInput2driveᚑconnectᚑbffᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_Mutation_createBoard_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -848,21 +893,6 @@ func (ec *executionContext) field_Mutation_deleteUser_args(ctx context.Context, 
 		}
 	}
 	args["id"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_Mutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 model.LoginInput
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNLoginInput2driveᚑconnectᚑbffᚋgraphᚋmodelᚐLoginInput(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["input"] = arg0
 	return args, nil
 }
 
@@ -1035,6 +1065,65 @@ func (ec *executionContext) field___Type_fields_args(ctx context.Context, rawArg
 // endregion ************************** directives.gotpl **************************
 
 // region    **************************** field.gotpl *****************************
+
+func (ec *executionContext) _AuthOps_login(ctx context.Context, field graphql.CollectedField, obj *model.AuthOps) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthOps_login(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuthOps().Login(rctx, obj, fc.Args["input"].(model.LoginInput))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.AuthPayload)
+	fc.Result = res
+	return ec.marshalNAuthPayload2ᚖdriveᚑconnectᚑbffᚋgraphᚋmodelᚐAuthPayload(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthOps_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthOps",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "token":
+				return ec.fieldContext_AuthPayload_token(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type AuthPayload", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AuthOps_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
 
 func (ec *executionContext) _AuthPayload_token(ctx context.Context, field graphql.CollectedField, obj *model.AuthPayload) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_AuthPayload_token(ctx, field)
@@ -2006,8 +2095,28 @@ func (ec *executionContext) _Mutation_createUser(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(model.UserInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateUser(rctx, fc.Args["input"].(model.UserInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *drive-connect-bff/graph/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2224,8 +2333,8 @@ func (ec *executionContext) fieldContext_Mutation_deleteUser(ctx context.Context
 	return fc, nil
 }
 
-func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_Mutation_login(ctx, field)
+func (ec *executionContext) _Mutation_auth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_Mutation_auth(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2238,7 +2347,7 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().Login(rctx, fc.Args["input"].(model.LoginInput))
+		return ec.resolvers.Mutation().Auth(rctx)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2250,12 +2359,12 @@ func (ec *executionContext) _Mutation_login(ctx context.Context, field graphql.C
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.AuthPayload)
+	res := resTmp.(*model.AuthOps)
 	fc.Result = res
-	return ec.marshalNAuthPayload2ᚖdriveᚑconnectᚑbffᚋgraphᚋmodelᚐAuthPayload(ctx, field.Selections, res)
+	return ec.marshalNAuthOps2ᚖdriveᚑconnectᚑbffᚋgraphᚋmodelᚐAuthOps(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_Mutation_auth(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Mutation",
 		Field:      field,
@@ -2263,22 +2372,11 @@ func (ec *executionContext) fieldContext_Mutation_login(ctx context.Context, fie
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
 			switch field.Name {
-			case "token":
-				return ec.fieldContext_AuthPayload_token(ctx, field)
+			case "login":
+				return ec.fieldContext_AuthOps_login(ctx, field)
 			}
-			return nil, fmt.Errorf("no field named %q was found under type AuthPayload", field.Name)
+			return nil, fmt.Errorf("no field named %q was found under type AuthOps", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_Mutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -2296,8 +2394,28 @@ func (ec *executionContext) _Mutation_createBoard(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CreateBoard(rctx, fc.Args["input"].(model.BoardInput))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CreateBoard(rctx, fc.Args["input"].(model.BoardInput))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Auth == nil {
+				return nil, errors.New("directive auth is not implemented")
+			}
+			return ec.directives.Auth(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Board); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *drive-connect-bff/graph/model.Board`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5813,6 +5931,76 @@ func (ec *executionContext) unmarshalInputUserInput(ctx context.Context, obj int
 
 // region    **************************** object.gotpl ****************************
 
+var authOpsImplementors = []string{"AuthOps"}
+
+func (ec *executionContext) _AuthOps(ctx context.Context, sel ast.SelectionSet, obj *model.AuthOps) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, authOpsImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("AuthOps")
+		case "login":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthOps_login(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
 var authPayloadImplementors = []string{"AuthPayload"}
 
 func (ec *executionContext) _AuthPayload(ctx context.Context, sel ast.SelectionSet, obj *model.AuthPayload) graphql.Marshaler {
@@ -6046,9 +6234,9 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
 			}
-		case "login":
+		case "auth":
 			out.Values[i] = ec.OperationContext.RootResolverMiddleware(innerCtx, func(ctx context.Context) (res graphql.Marshaler) {
-				return ec._Mutation_login(ctx, field)
+				return ec._Mutation_auth(ctx, field)
 			})
 			if out.Values[i] == graphql.Null {
 				out.Invalids++
@@ -6688,6 +6876,20 @@ func (ec *executionContext) ___Type(ctx context.Context, sel ast.SelectionSet, o
 // endregion **************************** object.gotpl ****************************
 
 // region    ***************************** type.gotpl *****************************
+
+func (ec *executionContext) marshalNAuthOps2driveᚑconnectᚑbffᚋgraphᚋmodelᚐAuthOps(ctx context.Context, sel ast.SelectionSet, v model.AuthOps) graphql.Marshaler {
+	return ec._AuthOps(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNAuthOps2ᚖdriveᚑconnectᚑbffᚋgraphᚋmodelᚐAuthOps(ctx context.Context, sel ast.SelectionSet, v *model.AuthOps) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._AuthOps(ctx, sel, v)
+}
 
 func (ec *executionContext) marshalNAuthPayload2driveᚑconnectᚑbffᚋgraphᚋmodelᚐAuthPayload(ctx context.Context, sel ast.SelectionSet, v model.AuthPayload) graphql.Marshaler {
 	return ec._AuthPayload(ctx, sel, &v)

@@ -6,11 +6,12 @@ package resolver
 
 import (
 	"context"
+	"drive-connect-bff/graph/generated"
 	"drive-connect-bff/graph/model"
 )
 
 // Login is the resolver for the login field.
-func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*model.AuthPayload, error) {
+func (r *authOpsResolver) Login(ctx context.Context, obj *model.AuthOps, input model.LoginInput) (*model.AuthPayload, error) {
 	responseUser, err := r.client.Login(input)
 	if err != nil {
 		return nil, err
@@ -20,3 +21,13 @@ func (r *mutationResolver) Login(ctx context.Context, input model.LoginInput) (*
 		Token: responseUser.Token,
 	}, nil
 }
+
+// Auth is the resolver for the auth field.
+func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthOps, error) {
+	return &model.AuthOps{}, nil
+}
+
+// AuthOps returns generated.AuthOpsResolver implementation.
+func (r *Resolver) AuthOps() generated.AuthOpsResolver { return &authOpsResolver{r} }
+
+type authOpsResolver struct{ *Resolver }

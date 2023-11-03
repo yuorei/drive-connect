@@ -2,6 +2,10 @@
 
 package model
 
+type AuthOps struct {
+	Login *AuthPayload `json:"login"`
+}
+
 type AuthPayload struct {
 	Token string `json:"token"`
 }

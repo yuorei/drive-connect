@@ -1,0 +1,39 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.air
+
+    volumes:
+      - ./:/app
+    ports:
+      - "50051:50051"
+    environment:
+      - DB_PORT=5432
+      - DB_USER=user
+      - DB_PASSWORD=password
+      - DB_NAME=drive_connect
+      - DB_HOST=db
+      - DB_SSLMODE=disable
+      - DB_TIMEZONE=Asia/Tokyo
+
+    depends_on:
+      - db
+    tty: true
+
+  db:
+    image: postgres:latest
+    environment:
+      POSTGRES_HOST: db
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+      POSTGRES_DB: drive_connect
+      TZ: "Asia/Tokyo"
+    ports:
+      - 5432:5432
+    volumes:
+      - postgres_volume:/var/lib/postgresql/data
+    restart: always
+
+volumes:
+  postgres_volume:

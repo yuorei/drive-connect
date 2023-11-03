@@ -1,0 +1,30 @@
+syntax = "proto3";
+
+package user;
+
+option go_package = "/grpc_user";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/empty.proto";
+
+message User {
+  string id = 1;
+  string name =2;
+  string email = 3;
+  string password = 4;
+  bool is_driver = 5;
+  string profileImageURL = 6;
+  google.protobuf.Timestamp created_at = 7;
+  google.protobuf.Timestamp updated_at = 8;
+}
+
+message ID {
+  string id = 1;
+}
+
+service UserService {
+    rpc CreateUser(User) returns (User);
+    rpc GetUserById(ID) returns (User);
+    rpc UpdateUser(User) returns (User);
+    rpc DeleteUser(ID) returns (google.protobuf.Empty);
+}

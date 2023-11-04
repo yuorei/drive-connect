@@ -1,14 +1,36 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import ButtomNavigation from './components/BottomNavigation.tsx'
+import { useEffect, useState, createContext } from 'react';
+import SearchBox from './components/SearchBox'
+import Map from './components/Map';
+
+export const PositionContext = createContext({ latitude: 0, longitude: 0 });
+export const MapContext = createContext({} as {
+  map: google.maps.Map;
+  setMap: React.Dispatch<React.SetStateAction<google.maps.Map>>;
+});
 
 function Ride() {
-  const [count, setCount] = useState(0)
+  type Position = { latitude: number; longitude: number };
+  const [position, setPosition] = useState({ latitude: 36.523671, longitude: 139.9391309 } as Position);
+  const [ map, setMap ] = useState({} as google.maps.Map);
+
+  useEffect(() => {
+    console.log("Getting current position...")
+    navigator.geolocation.getCurrentPosition(position => {
+      console.log(position.coords);
+      const { latitude, longitude } = position.coords;
+      setPosition({ latitude, longitude });
+    });
+    console.log("Got current position!")
+  }, []);
 
   return (
     <>
-      <h1>aaaaaa</h1>
+      <MapContext.Provider value={ { map, setMap } }>
+      <PositionContext.Provider value={ position }>
+        <SearchBox />
+        <Map />
+      </PositionContext.Provider>
+      </MapContext.Provider>
     </>
   )
 }

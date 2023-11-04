@@ -2,6 +2,14 @@
 
 package model
 
+type AuthOps struct {
+	Login *AuthPayload `json:"login"`
+}
+
+type AuthPayload struct {
+	Token string `json:"token"`
+}
+
 type Board struct {
 	ID                   string     `json:"id"`
 	Type                 string     `json:"type"`
@@ -20,7 +28,6 @@ type Board struct {
 
 type BoardInput struct {
 	Type                 string  `json:"type"`
-	UserID               string  `json:"user_id"`
 	Description          string  `json:"description"`
 	DepartureLatitude    float64 `json:"departure_latitude"`
 	DepartureLongitude   float64 `json:"departure_longitude"`
@@ -47,6 +54,11 @@ type CommentInput struct {
 	Content     string  `json:"content"`
 	CreatedAt   *string `json:"created_at,omitempty"`
 	UpdatedAt   *string `json:"updated_at,omitempty"`
+}
+
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {

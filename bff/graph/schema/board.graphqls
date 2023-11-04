@@ -27,7 +27,6 @@ type Comment {
 
 input BoardInput {
     type: String!
-    user_id: ID!
     description: String!
     departure_latitude: Float!
     departure_longitude: Float!
@@ -49,16 +48,16 @@ input CommentInput {
 
 extend type Query {
     boards: [Board!]!
-    board(id: ID!): Board
+    board(id: ID!): Board @auth
     comments: [Comment!]!
     comment(id: ID!): Comment
 }
 
 extend type Mutation {
-    createBoard(input: BoardInput!): Board!
-    createComment(input: CommentInput!): Comment!
-    updateBoard(id: ID!, input: BoardInput!): Board!
-    updateComment(id: ID!, input: CommentInput!): Comment!
-    deleteBoard(id: ID!): Board!
-    deleteComment(id: ID!): Comment!
+    createBoard(input: BoardInput!): Board! @auth
+    createComment(input: CommentInput!): Comment! @auth
+    updateBoard(id: ID!, input: BoardInput!): Board! @auth
+    updateComment(id: ID!, input: CommentInput!): Comment! @auth
+    deleteBoard(id: ID!): Board! @auth
+    deleteComment(id: ID!): Comment! @auth
 }

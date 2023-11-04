@@ -7,6 +7,7 @@ import {
 import App from './App.tsx'
 import Ride from './Ride.tsx'
 import Drive from './Drive.tsx'
+import Register from './Register.tsx'
 import './index.css'
 
 const router = createBrowserRouter([
@@ -23,6 +24,10 @@ const router = createBrowserRouter([
       {
         path: "ride",
         element: <Ride />,
+      },
+      {
+        path: "/ride/register",
+        element: <Register />,
       },
       {
         path: "drive",

@@ -7,12 +7,30 @@ package resolver
 import (
 	"context"
 	"drive-connect-bff/graph/model"
+	"drive-connect-bff/middleware"
 	"fmt"
 )
 
 // CreateBoard is the resolver for the createBoard field.
 func (r *mutationResolver) CreateBoard(ctx context.Context, input model.BoardInput) (*model.Board, error) {
-	panic(fmt.Errorf("not implemented: CreateBoard - createBoard"))
+	board, err := r.client.CreateBoard(input, middleware.CtxValue(ctx).UserID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &model.Board{
+		ID: board.Id,
+		User: &model.User{
+			ID: middleware.CtxValue(ctx).UserID,
+		},
+		Description:          board.Description,
+		DepartureLatitude:    float64(board.DepartureLatitude),
+		DepartureLongitude:   float64(board.DepartureLongitude),
+		DestinationLatitude:  float64(board.DestinationLatitude),
+		DestinationLongitude: float64(board.DestinationLongitude),
+		Reward:               board.Reward,
+		StartTime:            board.StartTime.String(),
+	}, nil
 }
 
 // CreateComment is the resolver for the createComment field.
@@ -42,12 +60,61 @@ func (r *mutationResolver) DeleteComment(ctx context.Context, id string) (*model
 
 // Boards is the resolver for the boards field.
 func (r *queryResolver) Boards(ctx context.Context) ([]*model.Board, error) {
-	panic(fmt.Errorf("not implemented: Boards - boards"))
+	boards, err := r.client.GetBoards()
+	if err != nil {
+		return nil, err
+	}
+	var result []*model.Board
+	timeformat := "2006-01-02T15:04:05Z"
+	for _, board := range boards {
+		startTime := board.StartTime.AsTime().Format(timeformat)
+		createdAt := board.CreatedAt.AsTime().Format(timeformat)
+		updatedAt := board.UpdatedAt.AsTime().Format(timeformat)
+		result = append(result, &model.Board{
+			ID: board.Id,
+			User: &model.User{
+				ID: board.UserId,
+			},
+			Description:          board.Description,
+			DepartureLatitude:    float64(board.DepartureLatitude),
+			DepartureLongitude:   float64(board.DepartureLongitude),
+			DestinationLatitude:  float64(board.DestinationLatitude),
+			DestinationLongitude: float64(board.DestinationLongitude),
+			Reward:               board.Reward,
+			StartTime:            startTime,
+			CreatedAt:            &createdAt,
+			UpdatedAt:            &updatedAt,
+		})
+	}
+
+	return result, nil
 }
 
 // Board is the resolver for the board field.
 func (r *queryResolver) Board(ctx context.Context, id string) (*model.Board, error) {
-	panic(fmt.Errorf("not implemented: Board - board"))
+	board, err := r.client.GetBoard(id)
+	if err != nil {
+		return nil, err
+	}
+	timeformat := "2006-01-02T15:04:05Z"
+	startTime := board.StartTime.AsTime().Format(timeformat)
+	createdAt := board.CreatedAt.AsTime().Format(timeformat)
+	updatedAt := board.StartTime.AsTime().Format(timeformat)
+	return &model.Board{
+		ID: board.Id,
+		User: &model.User{
+			ID: board.UserId,
+		},
+		Description:          board.Description,
+		DepartureLatitude:    float64(board.DepartureLatitude),
+		DepartureLongitude:   float64(board.DepartureLongitude),
+		DestinationLatitude:  float64(board.DestinationLatitude),
+		DestinationLongitude: float64(board.DestinationLongitude),
+		Reward:               board.Reward,
+		StartTime:            startTime,
+		CreatedAt:            &createdAt,
+		UpdatedAt:            &updatedAt,
+	}, nil
 }
 
 // Comments is the resolver for the comments field.

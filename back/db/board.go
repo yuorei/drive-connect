@@ -10,7 +10,7 @@ func (d *DB) GetBoardById(id string) (*model.Board, error) {
 	return board, nil
 }
 
-func (d *DB) GetBoardList() ([]*model.Board, error) {
+func (d *DB) ReadAllBoard() ([]*model.Board, error) {
 	var boards []*model.Board
 	if err := d.Conn.Find(&boards).Error; err != nil {
 		return nil, err

@@ -28,4 +28,5 @@ func (c *Client) NewClient() {
 	// gRPCクライアントを生成
 	c.userClient = grpc_back.NewUserServiceClient(conn)
 	c.boardClient = grpc_back.NewBoardServiceClient(conn)
+	c.authClient = grpc_back.NewAuthServiceClient(conn)
 }

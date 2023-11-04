@@ -6,6 +6,7 @@ import {
 } from "react-router-dom";
 import App from './App.tsx'
 import Ride from './Ride.tsx'
+import Drive from './Drive.tsx'
 import Register from './Register.tsx'
 import './index.css'
 
@@ -30,7 +31,7 @@ const router = createBrowserRouter([
       },
       {
         path: "drive",
-        element: <div>drive</div>,
+        element: <Drive></Drive>,
       },
     ],
   },

@@ -3,7 +3,7 @@ import { Wrapper } from '@googlemaps/react-wrapper';
 import useWindowSize from './useWindowSize';
 import { PositionContext } from '../Ride';
 import { MapContext } from '../Ride';
-import { Paper } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
 
 const MAP_API_KEY = import.meta.env.VITE_MAP_API_KEY;
 
@@ -23,9 +23,10 @@ const Content: React.FC = () => {
   const [width, height] = useWindowSize();
   const [isAvailable, setAvailable] = useState(false);
   const mapMarker = useRef<google.maps.Marker[]>([]);
-  const availCarMarkers = useRef<google.maps.Marker[]>([]);
   
   const { latitude, longitude } = useContext(PositionContext);
+
+  const navigate = useNavigate();
   
   const isFirstRef = useRef(true);
   useEffect(() => {
@@ -81,6 +82,7 @@ const Content: React.FC = () => {
           console.log('clicked');
           mapMarker.current[0].setMap(null);
           // ここでRegisterに飛ばす
+          return navigate(`/ride/register?dest_lat=${lat}&dest_lng=${lng}&current_lat=${latitude}&current_lng=${longitude}`);
         });
       });
     });
